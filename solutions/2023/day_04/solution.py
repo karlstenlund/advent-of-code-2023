@@ -24,18 +24,18 @@ class Solution(StrSplitSolution):
 
         return ack
 
-    # @answer(1234)
+    # @answer(5744979)
     def part_2(self) -> int:
         cards = []
         for line in self.input:
             cards.append(ScratchCard(line))
 
-        while any([card.copies > 0 for card in cards]):
-            for card in cards:
-                price = card.scratch()
+        for card in cards:
+            while card.copies > 0:
+                price, copies = card.scratch()
                 for c in range(price):
                     if card.card + c < len(cards):
-                        cards[card.card + c].add_copy()
+                        cards[card.card + c].add_copy(copies)
 
         return sum([card.scratched for card in cards])
 
@@ -50,21 +50,25 @@ class ScratchCard:
         self.your_numbers = self.your_numbers.split()
         self.copies = 1
         self.scratched = 0
+        self.price = None
 
     def scratch(self):
         if self.copies == 0:
             return 0
+        scratched_now = self.copies
+        self.scratched += self.copies
+        self.copies = 0
+        if self.price:
+            return self.price, scratched_now
         ack = 0
         for number in self.your_numbers:
             if number in self.wining_numbers:
                 ack += 1
+        self.price = ack
+        return ack, scratched_now
 
-        self.copies -= 1
-        self.scratched += 1
-        return ack
-
-    def add_copy(self):
-        self.copies += 1
+    def add_copy(self, copies):
+        self.copies += copies
 
     # @answer((1234, 4567))
     # def solve(self) -> tuple[int, int]:
